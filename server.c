@@ -174,8 +174,8 @@ void shifter(char* buffer, U32 length, U8 s) {
         int c = uncapitalize(buffer[i]);
         if (c != EOF) {
             c = c-97; // a = 0
-            c = (c + s)%26;
-            if (c < 0) { c = c + 26; }
+            c = (c + s)%25;
+            if (c < 0) { c = c + 25; }
             buffer[i] = letters[c];
         }
     }

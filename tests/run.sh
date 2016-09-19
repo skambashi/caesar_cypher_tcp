@@ -1,7 +1,10 @@
 #!/bin/bash
+ENCRYPT="./client -h 23.94.43.139 -p 3000 -o 0 -s 3"
+DECRYPT="./client -h 23.94.43.139 -p 3000 -o 1 -s 3"
 
-ENCRYPT="./client -h 143.248.56.16 -p 3000 -o 0 -s 3"
-DECRYPT="./client -h 143.248.56.16 -p 3000 -o 1 -s 3"
+
+#ENCRYPT="./client -h 143.248.56.16 -p 3000 -o 0 -s 3"
+#DECRYPT="./client -h 143.248.56.16 -p 3000 -o 1 -s 3"
 FILENUM=$(\ls -afq | grep .in | wc -l)
 
 rm -f *.out
