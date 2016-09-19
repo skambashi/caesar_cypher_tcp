@@ -45,7 +45,11 @@ int receiveMessage(int sockfd, char* buffer) {
 
     // Receive first packet and get the message size from header
     int receivedBytes = recv(sockfd, buffer, MESSAGE_SIZE, 0);
-    if(receivedBytes <= 0) {
+    if(receivedBytes == 0) {
+        fprintf(stderr, "[INFO] Receive returned 0, socket closed.\n");
+        return 0;
+    }
+    if(receivedBytes < 0) {
         fprintf(stderr, "[ERROR] First Receive Failed, errno: %d | %s.\n", errno, strerror(errno));
         return -1;
     }
@@ -58,7 +62,11 @@ int receiveMessage(int sockfd, char* buffer) {
     while(totalBytesReceived < messageLengthServer) {
         receivedBytes = recv(sockfd, buffer+totalBytesReceived, MESSAGE_SIZE, 0);
         totalBytesReceived += receivedBytes;
-        if(receivedBytes <= 0) {
+        if(receivedBytes == 0) {
+            fprintf(stderr, "[INFO] Receive returned 0, socket closed.\n");
+            return 0;
+        }
+        if(receivedBytes < 0) {
             fprintf(stderr, "[ERROR] Receive Failed, errno: %d | %s.\n", errno, strerror(errno));
             return -1;
         }
@@ -230,6 +238,9 @@ int main(int argc , char *argv[]) {
                 if ((bytesReceived = receiveMessage(connfd, buffer)) < 0) {
                     fprintf(stderr, "[ERROR] Fatal error while receiving message.\n");
                     close(connfd); exit(0);
+                } else if (bytesReceived == 0) {
+                    fprintf(stderr, "[INFO] Closing connection.\n");
+                    return 0;
                 } else {
                     fprintf(stderr, "[INFO] Received message from client of size %d.\n", bytesReceived);
                     U8 operation = buffer[0];
