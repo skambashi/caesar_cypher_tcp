@@ -82,11 +82,6 @@ int receiveMessage(int sockfd, char* buffer) {
     if (buffer[1] < 0) { fprintf(stderr, "[ERROR] Invalid shift in header.\n"); return -1; }
     if (messageLengthServer != totalBytesReceived) { fprintf(stderr, "[ERROR] Invalid amount of data received.\n"); return -1; }
 
-    // Output the message to stdout once verification passes
-    // for(int i = 8; i < totalBytesReceived; i++) {
-    //     fprintf(stdout, "%c", buffer[i]);
-    // }
-
     return totalBytesReceived;
 }
 
@@ -233,13 +228,15 @@ int main(int argc , char *argv[]) {
         if (!fork()) { // this is the child process
             close(listenfd); // child doesn't need the listener
 
+            fprintf(stderr, "[INFO] New client connection request accepted.\n");
+
             while(1) {
                 int bytesSent, bytesReceived;
                 if ((bytesReceived = receiveMessage(connfd, buffer)) < 0) {
                     fprintf(stderr, "[ERROR] Fatal error while receiving message.\n");
                     close(connfd); exit(0);
                 } else if (bytesReceived == 0) {
-                    fprintf(stderr, "[INFO] Closing connection.\n");
+                    fprintf(stderr, "[INFO] Connection with client closed.\n");
                     return 0;
                 } else {
                     fprintf(stderr, "[INFO] Received message from client of size %d.\n", bytesReceived);
