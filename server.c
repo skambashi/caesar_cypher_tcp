@@ -170,12 +170,11 @@ char uncapitalize(int c) {
 }
 
 void shifter(char* buffer, U32 length, U8 s) {
-    for (int i = 0; i < length; i++) {
+    for (int i = HEADER_SIZE; i < length; i++) {
         int c = uncapitalize(buffer[i]);
         if (c != EOF) {
             c = c-97; // a = 0
-            c = (c + s)%25;
-            if (c < 0) { c = c + 25; }
+            c = (c + s)%26;
             buffer[i] = letters[c];
         }
     }
@@ -235,8 +234,8 @@ int main(int argc , char *argv[]) {
                     fprintf(stderr, "[INFO] Received message from client of size %d.\n", bytesReceived);
                     U8 operation = buffer[0];
                     U8 shift = buffer[1];
-                    if (operation == 0) { shifter(buffer, bytesReceived, shift); } // encrypt
-                    else { shifter(buffer, bytesReceived, -shift); } // decrypt
+                    if (operation == 0) { shifter(buffer, bytesReceived, shift%26); } // encrypt
+                    else { shifter(buffer, bytesReceived, 26-shift%26); } // decrypt
                     if ((bytesSent = sendMessage(connfd, buffer, bytesReceived, operation, shift)) < 0) {
                         fprintf(stderr, "[ERROR] Fatal error while sending message.\n");
                         close(connfd); exit(0);
@@ -252,5 +251,11 @@ int main(int argc , char *argv[]) {
         free(buffer);
     }
     close(listenfd);
+
+    // U8 shift = 26;
+    // char test[] = "abcdefghijklmnopqrstuvwxyz";
+    // fprintf(stderr, "shift: %d\n%s\n", shift, test);
+    // shifter(test, 26, 26-shift%26);
+    // fprintf(stderr, "%s\n", test);
     return 0;
 }
