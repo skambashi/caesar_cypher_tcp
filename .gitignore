@@ -1,5 +1,6 @@
 .DS_Store
 client
+server
 # Object files
 *.o
 *.ko
@@ -33,3 +34,4 @@ client
 # Debug files
 *.dSYM/
 *.su
+*.txt

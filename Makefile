@@ -10,10 +10,14 @@ CFLAGS  = -g -Wall
 CLIENT = client
 SERVER = server
 
-all: $(CLIENT)
+all: $(CLIENT) $(SERVER)
 
 $(CLIENT): $(CLIENT).c
 	$(CC) $(CFLAGS) -o $(CLIENT) $(CLIENT).c
 
+$(SERVER): $(SERVER).c
+	$(CC) $(CFLAGS) -o $(SERVER) $(SERVER).c
+
 clean:
 	$(RM) $(CLIENT)
+	$(RM) $(SERVER)
