@@ -45,11 +45,11 @@ int receiveMessage(int sockfd, char* buffer) {
 
     // Receive first packet and get the message size from header
     int receivedBytes = recv(sockfd, buffer, MESSAGE_SIZE, 0);
-    if(receivedBytes < 0) {
+    if(receivedBytes < 0 && errno != 0) {
         fprintf(stderr, "[ERROR] First Receive Failed, errno: %d | %s.\n", errno, strerror(errno));
         return -1;
     }
-    if(receivedBytes == 0) {
+    if(receivedBytes == 0 || errno == 0) {
         fprintf(stderr, "[INFO] Receive returned 0, socket closed.\n");
         return 0;
     }
