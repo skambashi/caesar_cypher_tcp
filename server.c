@@ -45,13 +45,9 @@ int receiveMessage(int sockfd, char* buffer) {
 
     // Receive first packet and get the message size from header
     int receivedBytes = recv(sockfd, buffer, MESSAGE_SIZE, 0);
-    if(receivedBytes < 0 && errno != 0) {
-        fprintf(stderr, "[ERROR] First Receive Failed, errno: %d | %s.\n", errno, strerror(errno));
+    if(receivedBytes <= 0) {
+        // fprintf(stderr, "[ERROR] First Receive Failed, errno: %d | %s.\n", errno, strerror(errno));
         return -1;
-    }
-    if(receivedBytes == 0 || errno == 0) {
-        fprintf(stderr, "[INFO] Receive returned 0, socket closed.\n");
-        return 0;
     }
     totalBytesReceived += receivedBytes;
     U32 lengthNetwork = 0;
@@ -62,11 +58,7 @@ int receiveMessage(int sockfd, char* buffer) {
     while(totalBytesReceived < messageLengthServer) {
         receivedBytes = recv(sockfd, buffer+totalBytesReceived, MESSAGE_SIZE, 0);
         totalBytesReceived += receivedBytes;
-        if(receivedBytes == 0) {
-            fprintf(stderr, "[INFO] Receive returned 0, socket closed.\n");
-            return 0;
-        }
-        if(receivedBytes < 0) {
+        if(receivedBytes <= 0) {
             fprintf(stderr, "[ERROR] Receive Failed, errno: %d | %s.\n", errno, strerror(errno));
             return -1;
         }
@@ -81,6 +73,11 @@ int receiveMessage(int sockfd, char* buffer) {
     if (buffer[0] != 0 && buffer[0] != 1) { fprintf(stderr, "[ERROR] Invalid operation in header.\n"); return -1; }
     if (buffer[1] < 0) { fprintf(stderr, "[ERROR] Invalid shift in header.\n"); return -1; }
     if (messageLengthServer != totalBytesReceived) { fprintf(stderr, "[ERROR] Invalid amount of data received.\n"); return -1; }
+
+    // Output the message to stdout once verification passes
+    // for(int i = 8; i < totalBytesReceived; i++) {
+    //     fprintf(stdout, "%c", buffer[i]);
+    // }
 
     return totalBytesReceived;
 }
@@ -228,16 +225,12 @@ int main(int argc , char *argv[]) {
         if (!fork()) { // this is the child process
             close(listenfd); // child doesn't need the listener
 
-            fprintf(stderr, "[INFO] New client connection request accepted.\n");
-
             while(1) {
                 int bytesSent, bytesReceived;
                 if ((bytesReceived = receiveMessage(connfd, buffer)) < 0) {
-                    fprintf(stderr, "[ERROR] Fatal error while receiving message.\n");
+                    // fprintf(stderr, "[ERROR] Fatal error while receiving message.\n");
+                    fprintf(stderr, "[INFO] Client connection closed.\n");
                     close(connfd); exit(0);
-                } else if (bytesReceived == 0) {
-                    fprintf(stderr, "[INFO] Connection with client closed.\n");
-                    return 0;
                 } else {
                     fprintf(stderr, "[INFO] Received message from client of size %d.\n", bytesReceived);
                     U8 operation = buffer[0];
